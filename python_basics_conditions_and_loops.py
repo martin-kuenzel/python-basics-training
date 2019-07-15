@@ -112,9 +112,8 @@ for i in range(1,5):
 print(f'''
     #### NESTED FOR LOOP
     for i in range(1,5):
-        for c in ['a','b','c','d']: do
-            print(i + ' ' + c)
-''')
+        for c in ['a','b','c','d']: ''' + "\n            print(f'{i} {c}')\n"
+)
     #### NESTED FOR LOOP
 for i in range(1,5):
     for c in ['a','b','c','d']: 
