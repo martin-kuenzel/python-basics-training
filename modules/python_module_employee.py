@@ -29,22 +29,39 @@ class Employee:
         print (f'New Employee begins his work \n\t{self}\n')
         Employee.emp_no += 1
 
-    def fullname(self):
-        return f'{self.firstname} {self.name}'
-
     def raise_salary(self):
         old_salary = self.salary
         self.salary *= self.salary_raise_rate
-        print( f'Salary of {self.fullname()} raised by {self.salary-old_salary}' )
+        print( f'Salary of {self.fullname} raised by {self.salary-old_salary}' )
 
     def pay(self):
         self.paid += self.salary
-        print( f'{self.fullname()} has been paid {self.salary} and now owns {self.paid}' )
+        print( f'{self.fullname} has been paid {self.salary} and now owns {self.paid}' )
 
+## Concept of a property
+
+    @property
+    def fullname(self):
+        return f'{self.firstname} {self.name}'
+
+    @fullname.setter
+    def fullname(self,full_name):
+        print(f'Changing full name from {self.fullname} to {full_name}')
+        self.firstname, self.name = full_name.split('|')
+
+    @fullname.deleter
+    def fullname(self):
+        print(f'Deleting name of {self.fullname}')
+        self.firstname = None
+        self.name = None
+
+## //Concept of a property 
+
+    def __repr__(self):
+        return(f'Employee({self.firstname},{self.name},{self.salary})')
 
     def __str__(self):
-        
-        return f'EmpNo:{self.emp_no}, Name: {self.fullname()}, Profession: {self.__class__.__name__}, Salary: {self.salary} ({self.salary_raise_rate}), Paid: {self.paid}'
+        return f'EmpNo:{self.emp_no}, Name: {self.fullname}, Profession: {self.__class__.__name__}, Salary: {self.salary} ({self.salary_raise_rate}), Paid: {self.paid}'
 
 
 ## TESTBASE BASIC CLASSES ##
@@ -68,7 +85,7 @@ class Employee:
 # ''')
 
 # emp_2.salary_raise_rate = 1.05
-# print(f'Salary raise rate of {emp_2.fullname()} set to {emp_2.salary_raise_rate}')
+# print(f'Salary raise rate of {emp_2.fullname} set to {emp_2.salary_raise_rate}')
 
 # emp_0.raise_salary()
 # emp_1.raise_salary()
@@ -107,19 +124,27 @@ class Manager(Employee):
     def add_emp(self, emp):
         if emp not in self.employees:
             self.employees.append(emp)
-            print(f'{emp.fullname()} is now managed by {self.fullname()}')
+            print(f'{emp.fullname} is now managed by {self.fullname}')
     
     def remove_emp(self, emp):
         if emp in self.employees:
             self.employees.remove(emp)
-            print(f'{emp.fullname()} is no longer managed by {self.fullname()}')
+            print(f'{emp.fullname} is no longer managed by {self.fullname}')
+    
+    def __add__(self, emp):
+        if not self is emp:
+            self.add_emp(emp)
+
+    def __sub__(self, emp):
+        if not self is emp:
+            self.remove_emp(emp)
     
     def emps_str(self):
-        str = f'-- Employees managed by {self.fullname()} --'
+        str = f'-- Employees managed by {self.fullname} --'
         if len(self.employees) < 1: 
             str += '\n\tNone'
         for emp in self.employees:
-            str += f'\n\t{emp.fullname()}'
+            str += f'\n\t{emp.fullname}'
         return str
 
     def print_emps(self):
@@ -127,19 +152,27 @@ class Manager(Employee):
 
     def __str__(self):
         return f'{super().__str__()}\n{self.emps_str()}'
+    
 
-dev_0 = Developer('Hacka', 'Lot','JavaScript')
+dev_0 = Developer('Ackthay', 'Neet','JavaScript')
+dev_0.fullname = 'Hacka|Lot'
+
+del dev_0.fullname
+dev_0.fullname = 'Ackthay|Loot'
 
 dev_0.pay()
 dev_0.raise_salary()
 
 dev_0.pay()
 
-man_0 = Manager('Iown','Ju')
+man_0 = Manager('Owen','Ju')
 man_0.raise_salary()
 man_0.pay()
 
-man_0.add_emp(dev_0)
+#man_0.add_emp(dev_0)
+man_0 + dev_0
 man_0.print_emps()
-man_0.remove_emp(dev_0)
+
+#man_0.remove_emp(dev_0)
+man_0 - dev_0
 man_0.print_emps()
