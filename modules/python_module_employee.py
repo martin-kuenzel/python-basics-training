@@ -1,22 +1,33 @@
 #!/usr/bin/python3
+from datetime import date
 
 print(f'successfully imported module {__file__}')
 
-class employee:
+class Employee:
     emp_no = 0
     salary_raise_rate = 1.02
-    name = 'John'
-    pername = 'Doe'
-    def set_salary_raise_rate(self,rate=1.0):
-        self.salary_raise_rate = rate
+    salary = 1000
 
-    def __init__(self, pername = 'John', name = 'Doe', salary = 1000):
-        self.emp_no = employee.emp_no
+    @classmethod
+    def set_raise_amount(cls,amount):
+        cls.salary_raise_rate = amount
+
+    @classmethod
+    def from_string(cls,string):
+        pername,name = string.split('-')
+        return cls(pername,name)
+
+    @staticmethod
+    def is_workday(day):
+        return -1 < day.weekday() < 5
+
+    def __init__(self, pername = 'John', name = 'Doe'):
+        self.emp_no = Employee.emp_no
         self.pername = pername
         self.name = name
-        self.salary = salary
-        self.salary_raise_rate = employee.salary_raise_rate
-        employee.emp_no += 1
+        self.salary = Employee.salary
+        self.salary_raise_rate = Employee.salary_raise_rate
+        Employee.emp_no += 1
 
     def fullname(self):
         return f'{self.pername} {self.name}'
@@ -29,15 +40,16 @@ class employee:
     def __str__(self):
         return f'EmpNo:{self.emp_no}, Name: {self.fullname()}, salary: {self.salary} ({self.salary_raise_rate})'
 
-emp_0 = employee('Jim','Bow')
+emp_0 = Employee('Jim','Bow')
 
 print(emp_0)
 
-employee.set_salary_raise_rate(employee,1.025)
-print(f'Salary raise rate of {employee} set to {employee.salary_raise_rate}')
+Employee.set_raise_amount( 1.025 )
+print(f'Salary raise rate of {Employee} set to {Employee.salary_raise_rate}')
 
-emp_1 = employee('Ten','Isbal')
-emp_2 = employee('Whee','El Chair')
+#emp_1 = Employee('Ten','Isbal')
+emp_1 = Employee.from_string('Ten-Isbal')
+emp_2 = Employee('Whee','El Chair')
 
 print(f'''
 {emp_0}
@@ -47,7 +59,7 @@ print(f'''
 {emp_2}
 ''')
 
-emp_2.set_salary_raise_rate(1.05)
+emp_2.salary_raise_rate = 1.05
 print(f'Salary raise rate of {emp_2.fullname()} set to {emp_2.salary_raise_rate}')
 
 emp_0.raise_salary()
@@ -61,3 +73,5 @@ print(f'''
 
 {emp_2}
 ''')
+
+print( f'Today {date.today().strftime("%c")} is{ [" not "," "][int( Employee.is_workday( date.today() ) )] }a workday')
