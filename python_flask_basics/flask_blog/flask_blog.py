@@ -1,17 +1,38 @@
-from flask import Flask, escape, request
+from flask import Flask, escape, request, render_template, url_for
 
 app = Flask(__name__)
+
+posts = [
+    {
+        "author": "Mike Miller",
+        "title" : "First Post",
+        "content": "Post Content",
+        "date_created": "10/10/1924"
+    },
+    {
+        "author": "Mike Miller",
+        "title" : "Second Post",
+        "content": "Post Content",
+        "date_created": "15/10/1954"
+    }
+]
 
 @app.route('/')
 @app.route('/home')
 @app.route('/Home')
-def hello():
-    name = request.args.get("name", "World")
-    return f'Hello, {escape(name)}!'
+def posts_list():
+    return render_template('home.html',posts=posts)
+
+@app.route('/posts_detail')
+def posts_detail():
+    post_id = int(request.args.get("id"))
+    if posts[post_id] is None: 
+        return f'post with this id does not exist'
+    return render_template('posts_detail.html',post=posts[post_id])
 
 @app.route('/about')
 def about():
-    return f'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.'
+    return render_template('about.html',title="About")
 
 ## to run in python directly
 if __name__ == '__main__':

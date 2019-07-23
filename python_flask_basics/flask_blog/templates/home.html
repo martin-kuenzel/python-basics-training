@@ -1,0 +1,9 @@
+{%extends 'layout.html' %}
+{% block content %}
+    {% for post in posts %}
+        <h1> {{post.title}} </h1>
+        <p> by {{post.author}} on {{post.date_created}} </p>
+        <p> {{post.content}} </p>
+        <p><a href="/posts_detail?id={{loop.index0}}">details</a></p>
+    {% endfor %}
+{% endblock content %}
