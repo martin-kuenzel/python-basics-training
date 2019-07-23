@@ -3,3 +3,5 @@ __pycache__
 testfiles_output/
 .vscode/
 project_env/
+
+flask_project/
