@@ -1,6 +1,9 @@
-from flask import Flask, escape, request, render_template, url_for
+from flask import Flask, escape, request, render_template, url_for, flash, redirect
+from forms import RegistrationForm, LoginForm
 
 app = Flask(__name__)
+
+app.config['SECRET_KEY'] = 'b680f9c461dca3d215fca7e59a4838b1'
 
 posts = [
     {
@@ -33,6 +36,29 @@ def posts_detail():
 @app.route('/about')
 def about():
     return render_template('about.html',title="About")
+
+## USER AUTH PAGES
+@app.route( '/register', methods=['GET','POST'] )
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        flash(f'Account created successfully for {form.username.data}!', 'success')
+        return redirect(url_for('posts_list'))
+    return render_template('register.html',title="Register",form=form)
+
+@app.route('/login', methods=['GET','POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        """Just for testing the logon mechanism for now"""
+        if form.email.data == 'admin@blog.com' and form.password.data == 'password':
+            flash(f'You have been logged in', 'success')
+            return redirect(url_for('posts_list'))
+        else:
+            flash(f'Wrong login data','danger')
+    return render_template('login.html',title="Login", form=form)
+
+###
 
 ## to run in python directly
 if __name__ == '__main__':
