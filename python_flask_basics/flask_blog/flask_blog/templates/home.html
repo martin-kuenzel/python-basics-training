@@ -1,9 +1,7 @@
 {%extends 'layout.html' %}
 {% block content %}
     {% for post in posts %}
-        <h1> {{post.title}} </h1>
-        <p> by {{post.author}} on {{post.date_created}} </p>
-        <p> {{post.content}} </p>
-        <p><a href="{{url_for('posts_detail',id=loop.index0)}}">details</a></p>
+        <h5><a href="{{url_for('posts_detail',id=post.id)}}">{{post.title}}</a></h5>
+        <p class="text-right border-bottom"><small class="text-muted">by {{post.author.username}} on {{post.date_created}}</small></p>
     {% endfor %}
 {% endblock content %}

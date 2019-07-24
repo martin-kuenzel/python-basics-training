@@ -23,14 +23,19 @@ posts = [
 @app.route('/home')
 @app.route('/Home')
 def posts_list():
+    posts = Post.query.all()
     return render_template('home.html',posts=posts)
 
 @app.route('/posts_detail')
 def posts_detail():
     post_id = int(request.args.get("id"))
-    if posts[post_id] is None: 
-        return f'post with this id does not exist'
-    return render_template('posts_detail.html',post=posts[post_id])
+    post = Post.query.filter_by(id=post_id).first()
+    print(post)
+
+    if post is None: 
+        return f'''post with this id does not exist<br><a href="{url_for('posts_list')}">back to main</a>'''
+
+    return render_template('posts_detail.html',post=post)
 
 @app.route('/about')
 def about():
