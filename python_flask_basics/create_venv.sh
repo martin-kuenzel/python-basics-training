@@ -5,7 +5,7 @@ python3 -m venv flask_project &&\
 (cat <<ENV_ADD
 
 export SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(16));')
-export FLASK_APP=flask_blog/flask_blog.py
+export FLASK_APP=flask_blog/run.py
 
 ENV_ADD
 ) >> flask_project/bin/activate &&\

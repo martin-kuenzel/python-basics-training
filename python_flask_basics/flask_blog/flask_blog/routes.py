@@ -1,41 +1,8 @@
-from flask import Flask, escape, request, render_template, url_for, flash, redirect
-from flask_sqlalchemy import SQLAlchemy
-from forms import RegistrationForm, LoginForm
+from flask import escape, request, render_template, url_for, flash, redirect
 
-import os
-from datetime import datetime
-
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') #'b680f9c461dca3d215fca7e59a4838b1'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-
-db = SQLAlchemy(app)
-
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(20), unique=True, nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    image_file = db.Column(db.String(20), nullable=False, default='default.png')
-    password = db.Column(db.String(60), nullable=False)
-    
-    """relationship for multiple posts from table:post"""
-    posts = db.relationship('Post',backref='author',lazy=True)
-
-    def __repr__(self):
-        return f'User({self.id}, {self.username}, {self.email}, {self.image_file})'
-
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-
-    """Foreign Key to table:user, column:id"""
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
-
-    def __repr__(self):
-        return f'Post({self.id},{self.user_id},{self.title},{self.date_created})'
-
+from flask_blog import app
+from flask_blog.forms import RegistrationForm, LoginForm
+from flask_blog.models import User, Post
 
 posts = [
     {
@@ -91,7 +58,3 @@ def login():
     return render_template('login.html',title="Login", form=form)
 
 ###
-
-## to run in python directly
-if __name__ == '__main__':
-    app.run(debug=True)
