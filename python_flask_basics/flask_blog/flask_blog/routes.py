@@ -1,7 +1,7 @@
 from flask import escape, request, render_template, url_for, flash, redirect
 
 from flask_blog import app, db, bcrypt
-from flask_blog.forms import RegistrationForm, LoginForm
+from flask_blog.forms import RegistrationForm, LoginForm, PostCreationForm
 from flask_blog.models import User, Post
 
 from flask_login import login_user, logout_user, current_user, login_required
@@ -26,7 +26,7 @@ posts = [
 @app.route('/Home')
 def posts_list():
     posts = Post.query.all()
-    return render_template('home.html',posts=posts)
+    return render_template('home.html',posts=reversed(posts))
 
 @app.route('/posts_detail')
 def posts_detail():
@@ -91,3 +91,18 @@ def logout():
 @login_required # this HAS TO COME AFTER the app.route decorator to work
 def account():
     return render_template('account.html',title="Account")
+
+""" creation of posts """
+@app.route('/posts_create', methods=['GET','POST'])
+@login_required
+def posts_create():
+    form = PostCreationForm()
+    if form.validate_on_submit():
+        post = Post(user_id=current_user.id, title=form.title.data,content=form.content.data)
+        db.session.add(post)
+        db.session.commit()
+
+        flash(f'Post created','success')
+        return redirect(url_for('posts_list'))
+
+    return render_template('posts_create.html',title='Post creation',form=form)
