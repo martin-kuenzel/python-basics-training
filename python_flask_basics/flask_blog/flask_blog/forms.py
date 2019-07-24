@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
+from wtforms.widgets import HiddenInput
 
 from flask_blog.models import User
 
@@ -34,3 +35,8 @@ class PostCreationForm(FlaskForm):
     content = TextAreaField( 'Content', validators = [ DataRequired(), Length(max=1000) ] )
 
     submit = SubmitField('Create')
+
+class PostChangeForm(PostCreationForm):
+    submit = SubmitField('Save')
+    id = IntegerField(HiddenInput('id'))
+    pass

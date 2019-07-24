@@ -1,7 +1,7 @@
 from flask import escape, request, render_template, url_for, flash, redirect
 
 from flask_blog import app, db, bcrypt
-from flask_blog.forms import RegistrationForm, LoginForm, PostCreationForm
+from flask_blog.forms import RegistrationForm, LoginForm, PostCreationForm, PostChangeForm
 from flask_blog.models import User, Post
 
 from flask_login import login_user, logout_user, current_user, login_required
@@ -28,14 +28,14 @@ def posts_list():
     posts = Post.query.all()
     return render_template('home.html',posts=reversed(posts))
 
-@app.route('/posts_detail')
-def posts_detail():
-    post_id = int(request.args.get("id"))
+@app.route('/posts_detail/<int:id>')
+def posts_detail(id):
+    post_id = id
     post = Post.query.filter_by(id=post_id).first()
-    print(post)
 
     if post is None: 
-        return f'''post with this id does not exist<br><a href="{url_for('posts_list')}">back to main</a>'''
+        flash(f'Post does not exist','info')
+        return redirect(url_for('posts_list'))
 
     return render_template('posts_detail.html',post=post)
 
@@ -106,3 +106,30 @@ def posts_create():
         return redirect(url_for('posts_list'))
 
     return render_template('posts_create.html',title='Post creation',form=form)
+
+### TODO ##
+""" changing of posts """
+@app.route('/posts_change/<int:id>', methods=['GET','POST'])
+@login_required
+def posts_change(id):
+    
+    post = Post.query.filter_by(id=id).first()
+    if post and current_user.id is post.user_id:
+        form = PostChangeForm(obj=post)
+
+        if request.method == 'POST':
+            if form.validate_on_submit():
+                post.title = form.title.data
+                post.content = form.content.data
+
+                #post = Post(user_id=current_user.id, title=form.title.data,content=form.content.data)
+                # db.session.add(post)
+                db.session.commit()
+
+                flash(f'Post changed','success')
+                return redirect(url_for('posts_list'))
+
+        return render_template('posts_change.html',title='Post update',form=form)
+
+    flash(f'Post does not exist','info')
+    return redirect(url_for('posts_list'))
