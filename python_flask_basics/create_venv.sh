@@ -14,6 +14,8 @@ source flask_project/bin/activate &&\
 pip install flask &&\
 pip install flask-wtf &&\
 pip install flask-sqlalchemy &&\
+pip install flask-bcrypt &&\
+pip install flask-login &&\
 pip freeze > requirements.txt &&\
 deactivate &&\
 exit 0
