@@ -2,6 +2,7 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from wtforms.widgets import HiddenInput
+from flask_login import current_user
 
 from flask_blog.models import User
 
@@ -23,6 +24,19 @@ class RegistrationForm(FlaskForm):
         if not user is None:
             raise ValidationError('Email already exists')
 
+class UserUpdateForm(RegistrationForm):
+    submit = SubmitField('Save')
+
+    def validate_username(self, username):
+        user = User.query.filter_by(username=username.data).first()
+        if not user is None and not user.username is current_user.username:
+            raise ValidationError('Username is already taken')
+    def validate_email(self, email):
+        user = User.query.filter_by(email=email.data).first()
+        if not user is None and not user.email is current_user.email:
+            raise ValidationError('Email already exists')
+
+
 class LoginForm(FlaskForm):
     email = StringField('Email', validators = [ DataRequired(), Email() ] )
     password = PasswordField( 'Password', validators = [ DataRequired(), Length(min=5) ] )
@@ -38,5 +52,3 @@ class PostCreationForm(FlaskForm):
 
 class PostChangeForm(PostCreationForm):
     submit = SubmitField('Save')
-    id = IntegerField(HiddenInput('id'))
-    pass

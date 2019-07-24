@@ -1,7 +1,7 @@
 from flask import escape, request, render_template, url_for, flash, redirect
 
 from flask_blog import app, db, bcrypt
-from flask_blog.forms import RegistrationForm, LoginForm, PostCreationForm, PostChangeForm
+from flask_blog.forms import RegistrationForm, LoginForm, UserUpdateForm, PostCreationForm, PostChangeForm
 from flask_blog.models import User, Post
 
 from flask_login import login_user, logout_user, current_user, login_required
@@ -81,16 +81,47 @@ def login():
         flash(f'Wrong login data','danger')
     return render_template('login.html',title="Login", form=form)
 
+
+""" User only areas """
+
+""" User logout """
 @app.route('/logout')
+@login_required # this HAS TO COME AFTER the app.route decorator to work
 def logout():
     logout_user()
     return redirect(url_for('posts_list'))
 
-""" User only area """
+""" User account overview """
 @app.route('/account')
 @login_required # this HAS TO COME AFTER the app.route decorator to work
 def account():
     return render_template('account.html',title="Account")
+
+@app.route('/account_update', methods=['GET','POST'])
+@login_required # this HAS TO COME AFTER the app.route decorator to work
+def account_update():
+    form = UserUpdateForm(obj=current_user)
+    if request.method == 'POST':
+        if form.validate_on_submit():
+            user = current_user
+
+            """create a hashed password"""
+            hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            
+            """update the user in the database"""
+            user.email = form.email.data
+            user.username = form.username.data
+            user.password = hashed_pw
+
+            db.session.commit()
+
+            flash(f'User account successfully updated','success')
+
+            return redirect(url_for('posts_list'))
+
+    return render_template('account_update.html',title="Account Update",form=form)
+
+
 
 """ creation of posts """
 @app.route('/posts_create', methods=['GET','POST'])
@@ -107,7 +138,6 @@ def posts_create():
 
     return render_template('posts_create.html',title='Post creation',form=form)
 
-### TODO ##
 """ changing of posts """
 @app.route('/posts_change/<int:id>', methods=['GET','POST'])
 @login_required
@@ -122,8 +152,6 @@ def posts_change(id):
                 post.title = form.title.data
                 post.content = form.content.data
 
-                #post = Post(user_id=current_user.id, title=form.title.data,content=form.content.data)
-                # db.session.add(post)
                 db.session.commit()
 
                 flash(f'Post changed','success')
