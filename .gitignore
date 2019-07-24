@@ -5,3 +5,4 @@ testfiles_output/
 project_env/
 
 flask_project/
+site.db
