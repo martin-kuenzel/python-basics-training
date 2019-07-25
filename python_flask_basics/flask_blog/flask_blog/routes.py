@@ -6,21 +6,6 @@ from flask_blog.models import User, Post
 
 from flask_login import login_user, logout_user, current_user, login_required
 
-posts = [
-    {
-        "author": "Mike Miller",
-        "title" : "First Post",
-        "content": "Post Content",
-        "date_created": "10/10/1924"
-    },
-    {
-        "author": "Mike Miller",
-        "title" : "Second Post",
-        "content": "Post Content",
-        "date_created": "15/10/1954"
-    }
-]
-
 @app.route('/')
 @app.route('/home')
 @app.route('/Home')
@@ -43,7 +28,11 @@ def posts_detail(id):
 def about():
     return render_template('about.html',title="About")
 
+
+
 """ USER AUTH PAGES """
+
+""" account registering """
 @app.route( '/register', methods=['GET','POST'] )
 def register():
     if current_user.is_authenticated:
@@ -66,6 +55,7 @@ def register():
 
     return render_template('register.html',title="Register",form=form)
 
+""" account login """
 @app.route('/login', methods=['GET','POST'])
 def login():
     if current_user.is_authenticated:
@@ -97,6 +87,7 @@ def logout():
 def account():
     return render_template('account.html',title="Account")
 
+""" User account update """
 @app.route('/account_update', methods=['GET','POST'])
 @login_required # this HAS TO COME AFTER the app.route decorator to work
 def account_update():
@@ -120,8 +111,6 @@ def account_update():
             return redirect(url_for('posts_list'))
 
     return render_template('account_update.html',title="Account Update",form=form)
-
-
 
 """ creation of posts """
 @app.route('/posts_create', methods=['GET','POST'])
@@ -159,5 +148,27 @@ def posts_change(id):
 
         return render_template('posts_change.html',title='Post update',form=form)
 
-    flash(f'Post does not exist','info')
+    # flash(f'Post does not exist','info')
+    return redirect(url_for('posts_list'))
+
+
+""" deletion of posts """
+@app.route('/posts_delete/<int:id>', methods=['GET','POST'])
+@login_required
+def posts_delete(id):
+    
+    post = Post.query.filter_by(id=id).first()
+    if post and current_user.id is post.user_id:
+
+        if request.method == 'POST':
+            
+            db.session.delete(post)
+            db.session.commit()
+
+            flash(f'Post deleted','success')
+            return redirect(url_for('posts_list'))
+
+        return render_template('posts_delete.html',title='Post deletion',post=post)
+
+    #flash(f'Post does not exist','info')
     return redirect(url_for('posts_list'))

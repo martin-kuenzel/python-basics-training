@@ -24,6 +24,7 @@
                 <div class="navbar-nav">
                 <!-- Navbar Right Side -->
                 {% if current_user.is_authenticated %}
+                    <span class="nav-item nav-link text-light"><small>logged in as {{current_user.email}} ({{current_user.username}})</small>&emsp;|&emsp;</span>
                     <a class="nav-item nav-link" href="{{url_for('account')}}">Account</a>
                     <a class="nav-item nav-link" href="{{url_for('posts_create')}}">Create Post</a>
                     <a class="nav-item nav-link" href="{{url_for('logout')}}">Logout</a>

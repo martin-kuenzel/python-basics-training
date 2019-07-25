@@ -6,6 +6,7 @@ from flask_login import current_user
 
 from flask_blog.models import User
 
+
 class RegistrationForm(FlaskForm):
     username = StringField( 'Username', validators = [ DataRequired(), Length(min=5,max=20) ] )
     email = StringField('Email', validators = [ DataRequired(), Email() ] )
@@ -51,4 +52,5 @@ class PostCreationForm(FlaskForm):
     submit = SubmitField('Create')
 
 class PostChangeForm(PostCreationForm):
+    id = IntegerField( HiddenInput() ) ### THIS ADDS THE ID OF THE REFERENCING POST AS HIDDEN FIELD
     submit = SubmitField('Save')
