@@ -6,12 +6,21 @@ from flask_blog.models import User, Post
 
 from flask_login import login_user, logout_user, current_user, login_required
 
+from datetime import datetime
+
+"""date formatter"""
+@app.template_filter('date_f')
+def formatted_date(date):
+    return date.strftime('%B, %d.%m.%Y - %H:%M')
+
+
 @app.route('/')
 @app.route('/home')
 @app.route('/Home')
 def posts_list():
     posts = Post.query.all()
-    return render_template('home.html',posts=reversed(posts))
+    posts = sorted( posts, key = lambda p: p.date_changed, reverse= True )
+    return render_template('home.html',posts=posts,dformat=formatted_date)
 
 @app.route('/posts_detail/<int:id>')
 def posts_detail(id):
@@ -22,7 +31,7 @@ def posts_detail(id):
         flash(f'Post does not exist','info')
         return redirect(url_for('posts_list'))
 
-    return render_template('posts_detail.html',post=post)
+    return render_template('posts_detail.html',post=post,dformat=formatted_date)
 
 @app.route('/about')
 def about():
@@ -140,6 +149,7 @@ def posts_change(id):
             if form.validate_on_submit():
                 post.title = form.title.data
                 post.content = form.content.data
+                post.date_changed = datetime.utcnow()
 
                 db.session.commit()
 

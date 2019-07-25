@@ -26,10 +26,10 @@ class Post(db.Model):
     title = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
     date_created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    date_changed = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
     """Foreign Key to table:user, column:id"""
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),nullable=False)
 
     def __repr__(self):
         return f'Post({self.id},{self.user_id},{self.title},{self.date_created})'
-
