@@ -1,4 +1,8 @@
 from flask_wtf import FlaskForm
+
+""" For profile pictures """
+from flask_wtf.file import FileField, FileAllowed 
+
 from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from wtforms.widgets import HiddenInput
@@ -10,6 +14,7 @@ from flask_blog.models import User
 class RegistrationForm(FlaskForm):
     username = StringField( 'Username', validators = [ DataRequired(), Length(min=5,max=20) ] )
     email = StringField('Email', validators = [ DataRequired(), Email() ] )
+    profile_pic = FileField('Update profile picture', validators = [FileAllowed(['jpg','png','jpeg'])])
 
     password = PasswordField( 'Password', validators = [ DataRequired(), Length(min=5) ] )
     confirm_password = PasswordField( 'Confirm Password', validators = [ DataRequired(), Length(min=5), EqualTo('password') ] )
@@ -26,6 +31,8 @@ class RegistrationForm(FlaskForm):
             raise ValidationError('Email already exists')
 
 class UserUpdateForm(RegistrationForm):
+    password = None
+    confirm_password = None
     submit = SubmitField('Save')
 
     def validate_username(self, username):

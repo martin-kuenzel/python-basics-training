@@ -1,22 +1,29 @@
 {%extends 'layout.html' %}
 {% block content %}
-    <h1 class="border-bottom">{{post.title}}</h1>
-    <p> {{post.content}} </p>
-    <p class="text-right mt-4">
+<div class="content-section">
+    <h2 class="border-bottom">{{post.title}}</h2>
+    <div class="media">
+        <div class="media-body" style="white-space: pre-line;">{{post.content}}</div>
+    </div>
+    <div class="text-right mt-4">
+        <img class="account-img rounded-circle" src="{{url_for('static', filename = 'profile_pics/' + post.author.image_file)}}">
         <small class="text-muted">
             created by {{post.author.username}} {# ({{post.author.email}}) #}
             <br>
             created on {{post.date_created|date_f}}
             {% if post.date_changed != post.date_created %}
-                <br>changed on {{post.date_changed|date_f}}
+            <br>changed on {{post.date_changed|date_f}}
             {% endif %}
         </small>
-    </p>
-    <p>
-        <a class="btn btn-outline-info" href="{{url_for('posts_list')}}">go back</a>
-        {%if current_user.id == post.user_id %}
-            <a class="btn btn-outline-info" href="{{url_for('posts_change',id=post.id)}}">change</a>
-            <a class="btn btn-outline-info" href="{{url_for('posts_delete',id=post.id)}}">delete</a>
-        {%endif%}
-    </p>
+    </div>
+    <div class="nav">
+        <div>
+            <a class="btn btn-outline-info" href="{{url_for('posts_list')}}">go back</a>
+            {%if current_user.id == post.user_id %}
+            <a class="btn btn-outline-info" href="{{url_for('posts_change',post_id=post.id)}}">change</a>
+            <a class="btn btn-outline-info" href="{{url_for('posts_delete',post_id=post.id)}}">delete</a>
+            {%endif%}
+        </div>
+    </div>
+</div>
 {% endblock content %}

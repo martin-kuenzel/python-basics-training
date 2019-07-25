@@ -1,9 +1,18 @@
 {%extends 'layout.html' %}
 {% block content %}
-<h1>{{current_user.username}}</h1>
-<p><small class="text-muted">{{current_user.email}}</small></p>
-<p>
-    <a class="btn btn-outline-info" href="{{url_for('posts_list')}}">go back</a>
-    <a href="{{url_for('account_update')}}" class="btn btn-outline-info">update account</a>
-</p>
+<div class="content-section">
+    <div class="media">
+        <img class="rounded-circle account-img" src="{{profile_pic}}">
+        <div class="media-body">
+            <h2 class="account-heading">{{current_user.username}}</h2>
+            <p class="text-secondary"><small class="text-muted">{{current_user.email}}</small></p>
+        </div>
+    </div>
+    <div class="nav">
+        <div>
+            <a class="btn btn-outline-info" href="{{url_for('posts_list')}}">go back</a>
+            <a href="{{url_for('account_update')}}" class="btn btn-outline-info">update account</a>
+        </div>
+    </div>
+</div>
 {% endblock content %}

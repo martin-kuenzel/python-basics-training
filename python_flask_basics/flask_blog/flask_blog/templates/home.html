@@ -1,11 +1,18 @@
 {%extends 'layout.html' %}
 {% block content %}
     {% for post in posts %}
-        <h5><a href="{{url_for('posts_detail',id=post.id)}}">{{post.title}}</a></h5>
-        <p class="text-right border-bottom">
-            <small class="text-muted">
-                by {{post.author.username}} on {{post.date_created|date_f}}
-                {%if post.date_changed != post.date_created %}<br>changed on {{post.date_changed|date_f}}{% endif %}
-            </small></p>
+        <div class="content-section">
+            <div class="media">
+                <img class="rounded-circle account-img" src="{{url_for('static', filename = 'profile_pics/' + post.author.image_file)}}">
+                <h5><a href="{{url_for('posts_detail',post_id=post.id)}}">{{post.title}}</a></h5>
+
+                <div class="text-right media-body">
+                    <small class="text-muted">
+                        by {{post.author.username}} on {{post.date_created|date_f}}
+                        {%if post.date_changed != post.date_created %}<br>changed on {{post.date_changed|date_f}}{% endif %}
+                    </small>
+                </div>
+            </div>
+        </div>
     {% endfor %}
 {% endblock content %}

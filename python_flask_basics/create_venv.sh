@@ -27,6 +27,7 @@ pip install flask-wtf &&\
 pip install flask-sqlalchemy &&\
 pip install flask-bcrypt &&\
 pip install flask-login &&\
+pip install Pillow
 pip freeze > requirements.txt &&\
 deactivate &&\
 echo -e "-- Setup completed --\nTo activate the virtual environment run:\nsource flask_project/bin/activate" &&\
