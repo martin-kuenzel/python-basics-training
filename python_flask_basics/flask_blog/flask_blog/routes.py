@@ -6,11 +6,16 @@ from flask_blog.models import User, Post
 
 from flask_login import login_user, logout_user, current_user, login_required
 
+from sqlalchemy import desc
+
 """ For profile pictures """
 from PIL import Image ## resizing images
 
 """ For Emails Password reset / Account activation"""
 from flask_mail import Message
+
+""" For pagination of posts """
+from flask_paginate import Pagination, get_page_parameter
 
 from datetime import datetime
 import secrets
@@ -21,13 +26,25 @@ import os
 def formatted_date(date):
     return date.strftime('%B, %d.%m.%Y - %H:%M')
 
+""" for pagination in posts listing """
+def get_posts( offset=0, per_page=5, posts=list(range(5)) ):
+    return posts[offset: offset + per_page]
+
+
 @app.route('/')
 @app.route('/home')
 @app.route('/Home')
 def posts_list():
-    posts = Post.query.all()
-    posts = sorted( posts, key = lambda p: p.date_changed, reverse= True )
-    return render_template('home.html',posts=posts,dformat=formatted_date)
+    
+    posts = db.session.query(Post).order_by(desc(Post.date_changed))
+    
+    """ PAGINATION """
+    per_page = 3 ## show <int> entries per page
+    page = int( request.args.get('page', type=int, default=1) ) ## get parameter &page=<int>, defaults to 1 (first page)
+    pagination = Pagination( page=page, per_page=per_page, total=posts.count(), record_name='posts', css_framework='bootstrap4') ## the pagination html objects
+    
+    posts = posts.paginate(page=page, per_page=per_page)
+    return render_template('home.html', posts=posts.items, pagination=pagination, title="Posts" )
 
 @app.route('/posts_detail/<int:post_id>')
 def posts_detail(post_id):

@@ -1,18 +1,24 @@
 {%extends 'layout.html' %}
 {% block content %}
+    <div class="mb-4"
+    {{ pagination.links }}
+    </div>
     {% for post in posts %}
-        <div class="content-section">
-            <div class="media">
-                <img class="rounded-circle account-img" src="{{url_for('static', filename = 'profile_pics/' + post.author.image_file)}}">
-                <h5><a href="{{url_for('posts_detail',post_id=post.id)}}">{{post.title}}</a></h5>
-
-                <div class="text-right media-body">
-                    <small class="text-muted">
+    <div class="content-section">
+        <!-- <div class="btn btn-sm btn-light">{{ loop.index + pagination.skip }}</div> -->
+        <div class="media">
+            <img class="rounded-circle account-img" src="{{url_for('static', filename = 'profile_pics/' + post.author.image_file)}}">
+            <div class=" d-block w-100">
+                <h5 class="border-bottom "><a href="{{url_for('posts_detail',post_id=post.id)}}">{{post.title}}</a></h5>
+                <small class="float-right text-muted mt-4">
                         by {{post.author.username}} on {{post.date_created|date_f}}
-                        {%if post.date_changed != post.date_created %}<br>changed on {{post.date_changed|date_f}}{% endif %}
-                    </small>
-                </div>
+                        {%if post.date_changed|date_f != post.date_created|date_f %}<br>changed on {{post.date_changed|date_f}}{% endif %}                    
+                </small>
             </div>
         </div>
+    </div>
     {% endfor %}
+    <div class="mt-4">
+        {{ pagination.info }}
+    </div>
 {% endblock content %}
