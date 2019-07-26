@@ -18,7 +18,7 @@
     </div>
     <div class="nav">
         <div>
-            <a class="btn btn-outline-info" href="{{url_for('posts_list')}}">go back</a>
+            <a class="btn btn-outline-info" href="{{url_for('posts_list', post_id=post.id, user_id = user_id) if user_id else url_for('posts_list', post_id=post.id)}}">go back</a>
             {%if current_user.id == post.user_id %}
             <a class="btn btn-outline-info" href="{{url_for('posts_change',post_id=post.id)}}">change</a>
             <a class="btn btn-outline-info" href="{{url_for('posts_delete',post_id=post.id)}}">delete</a>

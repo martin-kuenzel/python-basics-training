@@ -53,17 +53,18 @@ def posts_list():
     pagination = Pagination( page=page, per_page=per_page, total=posts.count(), record_name='posts', css_framework='bootstrap4') ## the pagination html objects
     
     posts = posts.paginate(page=page, per_page=per_page)
-    return render_template('home.html', posts=posts.items, pagination=pagination, title="Posts" )
+    return render_template('home.html', posts=posts.items, pagination=pagination, user=user, title="Posts" )
 
 @app.route('/posts_detail/<int:post_id>')
 def posts_detail(post_id):
     post = Post.query.get(post_id)
+    user_id = request.args.get( 'user_id', type=int )
 
     if post is None: 
         flash(f'Post does not exist','info')
         return redirect(url_for('posts_list'))
 
-    return render_template('posts_detail.html',post=post,dformat=formatted_date)
+    return render_template('posts_detail.html',post=post,dformat=formatted_date, user_id = user_id, title="Post details" )
 
 @app.route('/about')
 def about():

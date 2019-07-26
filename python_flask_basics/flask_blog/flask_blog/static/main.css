@@ -96,3 +96,15 @@ body {
     padding: .1em .25em;
     font-size: 150%;
 }
+
+.user-filter{
+  float: unset;
+}
+.user-filter a{
+  text-decoration: none;
+  color: inherit;
+}
+.user-filter a:hover{
+  text-decoration: none;
+  color: inherit;
+}
