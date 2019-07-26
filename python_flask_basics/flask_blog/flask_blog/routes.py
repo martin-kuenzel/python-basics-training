@@ -15,7 +15,7 @@ from PIL import Image ## resizing images
 from flask_mail import Message
 
 """ For pagination of posts """
-from flask_paginate import Pagination, get_page_parameter
+from flask_paginate import Pagination
 
 from datetime import datetime
 import secrets
@@ -37,7 +37,16 @@ def get_posts( offset=0, per_page=5, posts=list(range(5)) ):
 def posts_list():
     
     posts = db.session.query(Post).order_by(desc(Post.date_changed))
+
+    """ FILTERING BY user_id """
+    user_id = request.args.get( 'user_id', type=int, default=0 )
+    user = User.query.get( user_id ) ## get parameter &user_id=<int>, defaults to 0 (NONE)
     
+    if user:
+        posts = posts.filter_by( author = user )
+    if user_id and not user:
+        flash("No user with such id exists", 'info')
+
     """ PAGINATION """
     per_page = 3 ## show <int> entries per page
     page = int( request.args.get('page', type=int, default=1) ) ## get parameter &page=<int>, defaults to 1 (first page)
