@@ -18,7 +18,7 @@ class User(db.Model, UserMixin):
     active = db.Column(db.Boolean(),nullable=False, default=False)
     
     """relationship for multiple posts from table:post"""
-    posts = db.relationship('Post',backref='author',lazy=True)
+    posts = db.relationship('Post',cascade="all,delete",backref='author',lazy=True)
 
     """ 
     

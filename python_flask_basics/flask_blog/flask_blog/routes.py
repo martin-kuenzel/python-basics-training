@@ -62,8 +62,9 @@ def save_profile_pic(form_picture):
     return save_name
 
 """ account login """
-@app.route('/login', methods=['GET','POST'])
-def login():
+@app.route('/account_login', methods=['GET','POST'])
+def account_login():
+
     if current_user.is_authenticated:
         return redirect(url_for('posts_list'))
 
@@ -80,17 +81,16 @@ def login():
 
         flash(f'Wrong login data','danger')
 
-    return render_template('login.html',title="Login", form=form)
+    return render_template('account_login.html',title="Login", form=form)
 
 """ password resetting email link route """
 @app.route( '/password_reset_confirm/<string:token>', methods=['GET','POST'] )
-def password_reset_confirm(token):
-
+def password_reset_confirm(token):  
+    
     if current_user.is_authenticated:
         return redirect(url_for('posts_list'))
-    
-    form = PasswordResetForm()
-    
+  
+    form = PasswordResetForm()    
     user = User.confirm_usr_verify_token( token )
 
     if user and form.validate_on_submit():
@@ -103,31 +103,37 @@ def password_reset_confirm(token):
         db.session.commit()
 
         flash('Your password has been reset','success')
-        return redirect(url_for('login'))
+        return redirect(url_for('account_login'))
         
     return render_template('password_reset_confirm.html', title="Password reset confirmation", form=form)
 
 """ password resetting requested route """
 @app.route( '/password_reset_request', methods=['GET','POST'] )
 def password_reset_request():
+
+    if current_user.is_authenticated:
+        return redirect(url_for('posts_list'))
+
     form = PasswordResetRequestForm()
-    user = User.query.filter_by(email=form.email.data).first()
-    if user and form.validate_on_submit():
+    if request.method == 'POST':
+        user = User.query.filter_by(email=form.email.data).first()
+        if user and form.validate_on_submit():
 
-        """Send reset mail"""
-        email = Message('Password reset', sender=os.environ.get('EMAIL_ACCOUNT'), recipients = [user.email])
-        reset_link = url_for( 'password_reset_confirm', user_id = user.id, token=user.create_usr_verify_token(), _external=True )
-        email.html = render_template('password_reset_email.html', reset_link = reset_link, user = user)
-        mail.send(email)
+            """Send reset mail"""
+            email = Message('Password reset', sender=os.environ.get('EMAIL_ACCOUNT'), recipients = [user.email])
+            reset_link = url_for( 'password_reset_confirm', user_id = user.id, token=user.create_usr_verify_token(), _external=True )
+            email.html = render_template('password_reset_email.html', reset_link = reset_link, user = user)
+            mail.send(email)
 
-        flash(f'An email has been sent to your email address', 'info')
-        return redirect(url_for('login'))
+            flash(f'An email has been sent to your email address', 'info')
 
+        return redirect(url_for('account_login'))
+        
     return render_template('password_reset_request.html',title="Reset Password", form = form)
 
 """ account registering """
-@app.route( '/register', methods=['GET','POST'] )
-def register():
+@app.route( '/account_register', methods=['GET','POST'] )
+def account_register():
     if current_user.is_authenticated:
         return redirect(url_for('posts_list'))
 
@@ -148,25 +154,27 @@ def register():
         db.session.add(user)
         db.session.commit()
 
+
         """ Send activation mail """
         email = Message('Account activation', sender=os.environ.get('EMAIL_ACCOUNT'), recipients = [user.email])
         activation_link = url_for( 'account_activate_confirm', user_id = user.id, token=user.create_usr_verify_token(), _external=True )
         email.html = render_template('account_activate_email.html', activation_link = activation_link)
         mail.send(email)
         
-        flash(f'An email with an activation link has been sent to you!', 'info')
-        return redirect(url_for('login'))
+        logout_user() ## for some reason the user is logged in after this
 
-    return render_template('register.html',title="Register",form=form)
+        flash(f'An email with an activation link has been sent to you!', 'info')
+
+        return redirect(url_for('account_login'))
+
+    return render_template('account_register.html',title="Register account",form=form)
 
 """ account activation confirmation route """
 @app.route( '/account_activate_confirm/<string:token>', methods=['GET','POST'] )
 def account_activate_confirm(token):
-    
     if current_user.is_authenticated:
         return redirect(url_for('posts_list'))
 
-    
     user = User.confirm_usr_verify_token( token )
     if user:
         user.active = True
@@ -174,14 +182,14 @@ def account_activate_confirm(token):
 
         flash('Your account has been activated','success')
 
-    return redirect(url_for('login'))
+    return redirect(url_for('account_login'))
 
 """ User only areas """
 
-""" User logout """
-@app.route('/logout')
+""" User account logout """
+@app.route('/account_logout')
 @login_required # this HAS TO COME AFTER the app.route decorator to work
-def logout():
+def account_logout():
     logout_user()
     return redirect(url_for('posts_list'))
 
@@ -220,6 +228,25 @@ def account_update():
         return redirect(url_for('account'))
 
     return render_template('account_update.html',title="Account Update",form=form)
+
+""" deletion of accounts """
+@app.route('/account_delete', methods=['GET','POST'])
+@login_required
+def account_delete():
+
+    if request.method == 'POST':
+    
+        if current_user.image_file != 'default.png': 
+            profile_pic = os.path.join(app.root_path,'static','profile_pics',current_user.image_file)
+            os.remove( profile_pic )
+
+        db.session.delete(current_user)
+        db.session.commit()
+
+        flash(f'Your account has been deleted','success')
+        return redirect(url_for('posts_list'))
+
+    return render_template('account_delete.html',title='Account deletion')
 
 """ creation of posts """
 @app.route('/posts_create', methods=['GET','POST'])
@@ -278,5 +305,3 @@ def posts_delete(post_id):
             return redirect(url_for('posts_list'))
 
     return render_template('posts_delete.html',title='Post deletion',post=post)
-
-    return redirect(url_for('posts_list'))

@@ -27,10 +27,10 @@
                     <span class="nav-item nav-link text-light"><small>logged in as {{current_user.email}} ({{current_user.username}})</small>&emsp;|&emsp;</span>
                     <a class="nav-item nav-link" href="{{url_for('account')}}">Account</a>
                     <a class="nav-item nav-link" href="{{url_for('posts_create')}}">Create Post</a>
-                    <a class="nav-item nav-link" href="{{url_for('logout')}}">Logout</a>
+                    <a class="nav-item nav-link" href="{{url_for('account_logout')}}">Logout</a>
                 {% else %}
-                    <a class="nav-item nav-link" href="{{url_for('login')}}">Login</a>
-                    <a class="nav-item nav-link" href="{{url_for('register')}}">Register</a>
+                    <a class="nav-item nav-link" href="{{url_for('account_login')}}">Login</a>
+                    <a class="nav-item nav-link" href="{{url_for('account_register')}}">Register</a>
                 {% endif %}
                 </div>
             </div>
