@@ -1,7 +1,7 @@
 from flask import escape, request, render_template, url_for, flash, redirect
 
-from flask_blog import app, db, bcrypt
-from flask_blog.forms import RegistrationForm, LoginForm, UserUpdateForm, PostCreationForm, PostChangeForm
+from flask_blog import app, db, bcrypt, mail
+from flask_blog.forms import RegistrationForm, LoginForm, UserUpdateForm, PasswordResetRequestForm, PasswordResetForm, PostCreationForm, PostChangeForm
 from flask_blog.models import User, Post
 
 from flask_login import login_user, logout_user, current_user, login_required
@@ -9,15 +9,17 @@ from flask_login import login_user, logout_user, current_user, login_required
 """ For profile pictures """
 from PIL import Image ## resizing images
 
+""" For Emails Password reset / Account activation"""
+from flask_mail import Message
+
 from datetime import datetime
 import secrets
 import os
 
-"""date formatter"""
+""" date formatter """
 @app.template_filter('date_f')
 def formatted_date(date):
     return date.strftime('%B, %d.%m.%Y - %H:%M')
-
 
 @app.route('/')
 @app.route('/home')
@@ -59,7 +61,6 @@ def save_profile_pic(form_picture):
 
     return save_name
 
-
 """ account login """
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -68,16 +69,61 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
+
         """Just for testing the logon mechanism for now"""
         user = User.query.filter_by(email=form.email.data).first()
-        if user and bcrypt.check_password_hash(user.password, form.password.data):
+
+        if user and user.active and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('posts_list'))
+
         flash(f'Wrong login data','danger')
+
     return render_template('login.html',title="Login", form=form)
 
+""" password resetting email link route """
+@app.route( '/password_reset_confirm/<string:token>', methods=['GET','POST'] )
+def password_reset_confirm(token):
 
+    if current_user.is_authenticated:
+        return redirect(url_for('posts_list'))
+    
+    form = PasswordResetForm()
+    
+    user = User.confirm_usr_verify_token( token )
+
+    if user and form.validate_on_submit():
+        
+        """create a hashed password"""
+        if not bcrypt.check_password_hash(user.password, form.password.data):
+            hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
+            user.password = hashed_pw
+
+        db.session.commit()
+
+        flash('Your password has been reset','success')
+        return redirect(url_for('login'))
+        
+    return render_template('password_reset_confirm.html', title="Password reset confirmation", form=form)
+
+""" password resetting requested route """
+@app.route( '/password_reset_request', methods=['GET','POST'] )
+def password_reset_request():
+    form = PasswordResetRequestForm()
+    user = User.query.filter_by(email=form.email.data).first()
+    if user and form.validate_on_submit():
+
+        """Send reset mail"""
+        email = Message('Password reset', sender=os.environ.get('EMAIL_ACCOUNT'), recipients = [user.email])
+        reset_link = url_for( 'password_reset_confirm', user_id = user.id, token=user.create_usr_verify_token(), _external=True )
+        email.html = render_template('password_reset_email.html', reset_link = reset_link, user = user)
+        mail.send(email)
+
+        flash(f'An email has been sent to your email address', 'info')
+        return redirect(url_for('login'))
+
+    return render_template('password_reset_request.html',title="Reset Password", form = form)
 
 """ account registering """
 @app.route( '/register', methods=['GET','POST'] )
@@ -101,11 +147,34 @@ def register():
         """create the user in the database"""
         db.session.add(user)
         db.session.commit()
+
+        """ Send activation mail """
+        email = Message('Account activation', sender=os.environ.get('EMAIL_ACCOUNT'), recipients = [user.email])
+        activation_link = url_for( 'account_activate_confirm', user_id = user.id, token=user.create_usr_verify_token(), _external=True )
+        email.html = render_template('account_activate_email.html', activation_link = activation_link)
+        mail.send(email)
         
-        flash(f'Account created successfully for {form.username.data}!', 'success')
+        flash(f'An email with an activation link has been sent to you!', 'info')
         return redirect(url_for('login'))
 
     return render_template('register.html',title="Register",form=form)
+
+""" account activation confirmation route """
+@app.route( '/account_activate_confirm/<string:token>', methods=['GET','POST'] )
+def account_activate_confirm(token):
+    
+    if current_user.is_authenticated:
+        return redirect(url_for('posts_list'))
+
+    
+    user = User.confirm_usr_verify_token( token )
+    if user:
+        user.active = True
+        db.session.commit()
+
+        flash('Your account has been activated','success')
+
+    return redirect(url_for('login'))
 
 """ User only areas """
 
@@ -143,11 +212,6 @@ def account_update():
         """update the user in the database"""
         current_user.email = form.email.data
         current_user.username = form.username.data
-
-        # """create a hashed password"""
-        # if not bcrypt.check_password_hash(current_user.password, form.password.data):
-        #     hashed_pw = bcrypt.generate_password_hash(form.password.data).decode('utf-8')
-        #     current_user.password = hashed_pw
 
         db.session.commit()
 

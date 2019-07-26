@@ -8,15 +8,15 @@ cd $(realpath $(dirname $0))
 
 python3 -m venv flask_project &&\
 
-read -s -p $'\ngive me a password:' PASSWORD &&\
-read -s -p $'\ngive me an email address:' EMAIL &&\
+read -s -p $'\ngive me an email address:' EMAIL_ACCOUNT &&\
+read -s -p $'\ngive me a password:' EMAIL_PASSWORD &&\
 
 (cat <<ENV_ADD
 
 export SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(16));')
 export FLASK_APP=run.py
-export EMAIL=$EMAIL
-export PASSWORD=$PASSWORD
+export EMAIL_ACCOUNT=$EMAIL_ACCOUNT
+export EMAIL_PASSWORD=$EMAIL_PASSWORD
 
 ENV_ADD
 ) >> flask_project/bin/activate &&\
@@ -27,7 +27,8 @@ pip install flask-wtf &&\
 pip install flask-sqlalchemy &&\
 pip install flask-bcrypt &&\
 pip install flask-login &&\
-pip install Pillow
+pip install Pillow &&\
+pip install flask-mail &&\
 pip freeze > requirements.txt &&\
 deactivate &&\
 echo -e "-- Setup completed --\nTo activate the virtual environment run:\nsource flask_project/bin/activate" &&\

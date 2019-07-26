@@ -1,6 +1,7 @@
 from datetime import datetime
-from flask_blog import db, login_manager
+from flask_blog import db, login_manager, app
 from flask_login import UserMixin
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
 """required by Extension login_manager"""
 @login_manager.user_loader
@@ -14,9 +15,35 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(120), unique=True, nullable=False)
     image_file = db.Column(db.String(20), nullable=False, default='default.png')
     password = db.Column(db.String(60), nullable=False)
+    active = db.Column(db.Boolean(),nullable=False, default=False)
     
     """relationship for multiple posts from table:post"""
     posts = db.relationship('Post',backref='author',lazy=True)
+
+    """ 
+    
+    for activation/pw reset we need a security token 
+    
+    """
+
+    """ this creates a security token 
+        times out after 600 Seconds (15 mins)
+    """
+    def create_usr_verify_token(self,expires_secs=600):
+        s = Serializer(app.config['SECRET_KEY'],expires_secs)
+        return s.dumps({'user_id':self.id}).decode('utf-8')
+    
+    """ this checks security tokens against the app/db for users """
+    @staticmethod
+    def confirm_usr_verify_token(token):
+        s = Serializer(app.config['SECRET_KEY'])
+        try: 
+            user_id = s.loads(token)['user_id']
+        except:
+            return None
+        return User.query.get(user_id)
+
+
 
     def __repr__(self):
         return f'User({self.id}, {self.username}, {self.email}, {self.image_file})'

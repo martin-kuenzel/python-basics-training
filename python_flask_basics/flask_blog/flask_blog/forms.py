@@ -45,12 +45,23 @@ class UserUpdateForm(RegistrationForm):
             raise ValidationError('Email already exists')
 
 
+
 class LoginForm(FlaskForm):
     email = StringField('Email', validators = [ DataRequired(), Email() ] )
     password = PasswordField( 'Password', validators = [ DataRequired(), Length(min=5) ] )
 
     remember = BooleanField('Remember me')
     submit = SubmitField('Login')
+
+class PasswordResetRequestForm(FlaskForm):
+    email = StringField('Email', validators = [ DataRequired(), Email() ] )
+    submit = SubmitField('Reset')
+
+class PasswordResetForm(RegistrationForm):
+    username = None
+    email = None
+    profile_pic = None
+    submit = SubmitField('Save')
 
 class PostCreationForm(FlaskForm):
     title = StringField('Title', validators = [ DataRequired(), Length(min=5) ] )
