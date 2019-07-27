@@ -35,7 +35,7 @@ def account_login():
 
         flash(f'Wrong login data','danger')
 
-    return render_template('account_login.html',title="Login", form=form)
+    return render_template('accounts/account_login.html',title="Login", form=form)
 
 """ password resetting email link route """
 @users.route( '/password_reset_confirm/<string:token>', methods=['GET','POST'] )
@@ -59,7 +59,7 @@ def password_reset_confirm(token):
         flash('Your password has been reset','success')
         return redirect(url_for('users.account_login'))
         
-    return render_template('password_reset_confirm.html', title="Password reset confirmation", form=form)
+    return render_template('accounts/password_reset_confirm.html', title="Password reset confirmation", form=form)
 
 """ password resetting requested route """
 @users.route( '/password_reset_request', methods=['GET','POST'] )
@@ -74,12 +74,12 @@ def password_reset_request():
         if user and form.validate_on_submit():
 
             """Send reset mail"""
-            send_verification_mail( topic = 'Password reset', email_template = 'password_reset_email.html', link_route = 'users.password_reset_confirm', user = user )
+            send_verification_mail( topic = 'Password reset', email_template = 'accounts/password_reset_email.html', link_route = 'users.password_reset_confirm', user = user )
             flash(f'An email has been sent to your email address', 'info')
 
         return redirect(url_for('users.account_login'))
         
-    return render_template('password_reset_request.html',title="Reset Password", form = form)
+    return render_template('accounts/password_reset_request.html',title="Reset Password", form = form)
 
 """ account registering """
 @users.route( '/account_register', methods=['GET','POST'] )
@@ -105,14 +105,14 @@ def account_register():
         db.session.commit()
 
         """ Send activation mail """
-        send_verification_mail( topic = 'Account activation', email_template = 'account_activate_email.html', link_route = 'users.account_activate_confirm', user = user )  
+        send_verification_mail( topic = 'Account activation', email_template = 'accounts/account_activate_email.html', link_route = 'users.account_activate_confirm', user = user )  
         logout_user() ## for some reason the user is logged in after this
 
         flash(f'An email with an activation link has been sent to you!', 'info')
 
         return redirect(url_for('users.account_login'))
 
-    return render_template('account_register.html',title="Register account",form=form)
+    return render_template('accounts/account_register.html',title="Register account",form=form)
 
 """ account activation confirmation route """
 @users.route( '/account_activate_confirm/<string:token>', methods=['GET','POST'] )
@@ -143,7 +143,7 @@ def account_logout():
 @login_required # this HAS TO COME AFTER the users.route decorator to work
 def account():
     profile_pic = url_for('static', filename = 'profile_pics/' + current_user.image_file )
-    return render_template('account.html',title="Account", profile_pic = profile_pic)
+    return render_template('accounts/account.html',title="Account", profile_pic = profile_pic)
 
 """ User account update """
 @users.route('/account_update', methods=['GET','POST'])
@@ -158,7 +158,8 @@ def account_update():
             """ if current profile pic is not the default pic, then delete current profile pic from system """
             if current_user.image_file != 'default.png': 
                 profile_pic_old = os.path.join(current_app.root_path,'static','profile_pics',current_user.image_file)
-                os.remove( profile_pic_old )
+                if os.path.exists(profile_pic_old):
+                    os.remove( profile_pic_old )
 
             current_user.image_file = profile_pic
         
@@ -172,7 +173,7 @@ def account_update():
 
         return redirect(url_for('users.account'))
 
-    return render_template('account_update.html',title="Account Update",form=form)
+    return render_template('accounts/account_update.html',title="Account Update",form=form)
 
 """ deletion of accounts """
 @users.route('/account_delete', methods=['GET','POST'])
@@ -183,7 +184,8 @@ def account_delete():
     
         if current_user.image_file != 'default.png': 
             profile_pic = os.path.join(current_app.root_path,'static','profile_pics',current_user.image_file)
-            os.remove( profile_pic )
+            if os.path.exists(profile_pic):
+                os.remove( profile_pic )
 
         db.session.delete(current_user)
         db.session.commit()
@@ -191,4 +193,4 @@ def account_delete():
         flash(f'Your account has been deleted','success')
         return redirect(url_for('posts.posts_list'))
 
-    return render_template('account_delete.html',title='Account deletion')
+    return render_template('accounts/account_delete.html',title='Account deletion')

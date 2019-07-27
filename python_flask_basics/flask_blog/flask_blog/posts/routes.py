@@ -29,7 +29,7 @@ def posts_detail(post_id):
         flash(f'Post does not exist','info')
         return redirect(url_for('posts.posts_list'))
 
-    return render_template('posts_detail.html',post=post, user_id = user_id, title="Post details" )
+    return render_template('posts/posts_detail.html',post=post, user_id = user_id, title="Post details" )
 
 """ creation of posts """
 @posts.route('/posts_create', methods=['GET','POST'])
@@ -44,7 +44,7 @@ def posts_create():
         flash(f'Post created','success')
         return redirect(url_for('posts.posts_list'))
 
-    return render_template('posts_create.html',title='Post creation',form=form)
+    return render_template('posts/posts_create.html',title='Post creation',form=form)
 
 """ changing of posts """
 @posts.route('/posts_change/<int:post_id>', methods=['GET','POST'])
@@ -66,7 +66,7 @@ def posts_change(post_id):
             flash(f'Post changed','success')
             return redirect(url_for('posts.posts_list'))
 
-        return render_template('posts_change.html',title='Post update',form=form)
+        return render_template('posts/posts_change.html',title='Post update',form=form)
 
     return redirect(url_for('posts.posts_list'))
 
@@ -87,7 +87,7 @@ def posts_delete(post_id):
             flash(f'Post deleted','success')
             return redirect(url_for('posts.posts_list'))
 
-    return render_template('posts_delete.html',title='Post deletion',post=post)
+    return render_template('posts/posts_delete.html',title='Post deletion',post=post)
 
 
 @posts.route('/')

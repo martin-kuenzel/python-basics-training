@@ -18,7 +18,7 @@ def save_profile_pic(form_picture):
     _, fileext = os.path.splitext(form_picture.filename) ## using _ for the filename because its not needed anywhere
 
     """ resize images to a unified size """
-    output_size = (64,64)
+    output_size = (120,120)
     i = Image.open(form_picture)
     i.thumbnail(output_size)
 

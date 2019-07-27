@@ -41,6 +41,9 @@ def create_app( config_class = Config ):
     from flask_blog.root.routes import root
     app.register_blueprint(root)
 
+    from flask_blog.errors.routes import errors
+    app.register_blueprint(errors)
+
     """ date formatter """
     @app.template_filter('date_f')
     def formatted_date(date):

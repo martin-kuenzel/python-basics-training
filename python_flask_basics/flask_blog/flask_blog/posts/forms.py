@@ -8,7 +8,7 @@ from wtforms.widgets import HiddenInput ## this is needed for updating existing 
 """ the creation of a new post form """
 class PostCreationForm(FlaskForm):
     title = StringField('Title', validators = [ DataRequired(), Length(min=5) ] )
-    content = TextAreaField( 'Content', validators = [ DataRequired(), Length(max=1000) ] )
+    content = TextAreaField( 'Content', validators = [ DataRequired(), Length(max=10000) ] )
 
     submit = SubmitField('Create')
 
