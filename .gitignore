@@ -4,8 +4,3 @@ testfiles_output/
 .vscode/
 project_env/
 
-flask_project/
-site.db
-
-profile_pics/
-!profile_pics/default.*
