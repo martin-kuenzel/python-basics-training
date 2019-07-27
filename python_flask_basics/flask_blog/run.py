@@ -1,4 +1,6 @@
-from flask_blog import app
+from flask_blog import create_app
+
+app = create_app()
 
 ## to run in python directly
 if __name__ == '__main__':

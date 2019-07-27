@@ -17,6 +17,7 @@ export SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_hex(16));')
 export FLASK_APP=run.py
 export EMAIL_ACCOUNT=$EMAIL_ACCOUNT
 export EMAIL_PASSWORD=$EMAIL_PASSWORD
+export SQLALCHEMY_DATABASE_URI="sqlite:///site.db"
 
 ENV_ADD
 ) >> flask_project/bin/activate &&\

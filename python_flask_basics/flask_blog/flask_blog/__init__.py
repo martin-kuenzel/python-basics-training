@@ -4,29 +4,46 @@ from flask_bcrypt import Bcrypt
 from flask_login import LoginManager
 from flask_mail import Mail
 
-import os
+""" the configurations for the application """
+from flask_blog.config import Config
 
-app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY') #'b680f9c461dca3d215fca7e59a4838b1'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
-
-db = SQLAlchemy(app)
+""" DATABASE SETUP """
+db = SQLAlchemy()
 
 """for password hashing, we use flask-bcrypt"""
-bcrypt = Bcrypt(app)
+bcrypt = Bcrypt()
 
 """login manager from flask-login"""
-login_manager = LoginManager(app)
-login_manager.login_view = '/login'
+login_manager = LoginManager()
+login_manager.login_view = 'users.account_login'
 login_manager.login_message_category = 'info'
 
-"""email setup for gmail"""
-app.config['MAIL_SERVER']='smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = os.environ.get('EMAIL_ACCOUNT')
-app.config['MAIL_PASSWORD'] = os.environ.get('EMAIL_PASSWORD')
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-mail = Mail(app)
+""" setting up a mail object"""
+mail = Mail()
 
-from flask_blog import routes
+""" to create multiple instances of our app """
+def create_app( config_class = Config ):
+
+    app = Flask(__name__)
+    app.config.from_object(Config)
+
+    db.init_app(app)
+    bcrypt.init_app(app)
+    login_manager.init_app(app)
+    mail.init_app(app)
+
+    from flask_blog.users.routes import users
+    app.register_blueprint(users)
+
+    from flask_blog.posts.routes import posts
+    app.register_blueprint(posts)
+
+    from flask_blog.root.routes import root
+    app.register_blueprint(root)
+
+    """ date formatter """
+    @app.template_filter('date_f')
+    def formatted_date(date):
+        return date.strftime('%B, %d.%m.%Y - %H:%M')
+
+    return app

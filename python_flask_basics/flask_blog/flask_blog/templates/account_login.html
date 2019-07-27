@@ -41,7 +41,7 @@
                     <div>
                         {{form.submit(class="btn btn-outline-info")}}
                         <small class="text-muted ml-4">
-                            <a href="{{url_for('password_reset_request')}}">Forgot password ?</a>
+                            <a href="{{url_for('users.password_reset_request')}}">Forgot password ?</a>
                         </small>
                     </div>
                 </div>
@@ -49,6 +49,6 @@
     </form>
 </div>
 <div class="border-top pt-3"><small class="text-muted">
-    Not have an account yet ? <a href="{{url_for('account_register')}}">Signup here</a>
+    Not have an account yet ? <a href="{{url_for('users.account_register')}}">Signup here</a>
 </small></div>
 {% endblock content %}

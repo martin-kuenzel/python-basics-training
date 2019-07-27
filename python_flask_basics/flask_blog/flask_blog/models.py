@@ -1,5 +1,8 @@
 from datetime import datetime
-from flask_blog import db, login_manager, app
+
+from flask import current_app
+
+from flask_blog import db, login_manager
 from flask_login import UserMixin
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 
@@ -30,13 +33,13 @@ class User(db.Model, UserMixin):
         times out after 600 Seconds (15 mins)
     """
     def create_usr_verify_token(self,expires_secs=600):
-        s = Serializer(app.config['SECRET_KEY'],expires_secs)
+        s = Serializer(current_app.config['SECRET_KEY'],expires_secs)
         return s.dumps({'user_id':self.id}).decode('utf-8')
     
     """ this checks security tokens against the app/db for users """
     @staticmethod
     def confirm_usr_verify_token(token):
-        s = Serializer(app.config['SECRET_KEY'])
+        s = Serializer(current_app.config['SECRET_KEY'])
         try: 
             user_id = s.loads(token)['user_id']
         except:

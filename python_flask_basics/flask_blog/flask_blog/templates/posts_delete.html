@@ -4,10 +4,10 @@
     <h2 class="border-bottom">Delete {{post.title}}</h2>
     <div class="mt-4 mb-4"> Are you sure you want to delete this post ? </div>
     
-    <form method="POST" action="{{url_for('posts_delete',post_id=post.id)}}">
+    <form method="POST" action="{{url_for('posts.posts_delete',post_id=post.id)}}">
         <div class="nav">
             <div>
-                <a class="btn btn-outline-info" href="{{url_for('posts_detail',post_id=post.id)}}">cancel</a>
+                <a class="btn btn-outline-info" href="{{url_for('posts.posts_detail',post_id=post.id)}}">cancel</a>
                 <input type="submit" class="btn btn-outline-danger" value="yes">
             </div>
         </div>

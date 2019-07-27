@@ -18,10 +18,11 @@
     </div>
     <div class="nav">
         <div>
-            <a class="btn btn-outline-info" href="{{url_for('posts_list', post_id=post.id, user_id = user_id) if user_id else url_for('posts_list', post_id=post.id)}}">go back</a>
-            {%if current_user.id == post.user_id %}
-            <a class="btn btn-outline-info" href="{{url_for('posts_change',post_id=post.id)}}">change</a>
-            <a class="btn btn-outline-info" href="{{url_for('posts_delete',post_id=post.id)}}">delete</a>
+            {# if the user_id was given when opening the post details page, we will add it to the go back reference, to keep the posts_list filtered by user id #}
+            <a class="btn btn-outline-info" href="{{url_for('posts.posts_list', user_id = user_id) if user_id else url_for('posts.posts_list')}}">go back</a>
+            {%if current_user == post.author %}
+            <a class="btn btn-outline-info" href="{{url_for('posts.posts_change',post_id=post.id)}}">change</a>
+            <a class="btn btn-outline-info" href="{{url_for('posts.posts_delete',post_id=post.id)}}">delete</a>
             {%endif%}
         </div>
     </div>

@@ -3,14 +3,14 @@ from flask_wtf import FlaskForm
 """ For profile pictures """
 from flask_wtf.file import FileField, FileAllowed 
 
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, IntegerField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
-from wtforms.widgets import HiddenInput
+
 from flask_login import current_user
 
 from flask_blog.models import User
 
-
+""" the creation of new users form """
 class RegistrationForm(FlaskForm):
     username = StringField( 'Username', validators = [ DataRequired(), Length(min=5,max=20) ] )
     email = StringField('Email', validators = [ DataRequired(), Email() ] )
@@ -30,6 +30,7 @@ class RegistrationForm(FlaskForm):
         if not user is None:
             raise ValidationError('Email already exists')
 
+""" the updating of existing users form  """
 class UserUpdateForm(RegistrationForm):
     password = None
     confirm_password = None
@@ -45,7 +46,7 @@ class UserUpdateForm(RegistrationForm):
             raise ValidationError('Email already exists')
 
 
-
+""" the logging in for existing users form """
 class LoginForm(FlaskForm):
     email = StringField('Email', validators = [ DataRequired(), Email() ] )
     password = PasswordField( 'Password', validators = [ DataRequired(), Length(min=5) ] )
@@ -53,22 +54,15 @@ class LoginForm(FlaskForm):
     remember = BooleanField('Remember me')
     submit = SubmitField('Login')
 
+
+""" the forgot password form """
 class PasswordResetRequestForm(FlaskForm):
     email = StringField('Email', validators = [ DataRequired(), Email() ] )
     submit = SubmitField('Reset')
 
+""" the updating password form (only reachable via received email) """
 class PasswordResetForm(RegistrationForm):
     username = None
     email = None
     profile_pic = None
-    submit = SubmitField('Save')
-
-class PostCreationForm(FlaskForm):
-    title = StringField('Title', validators = [ DataRequired(), Length(min=5) ] )
-    content = TextAreaField( 'Content', validators = [ DataRequired(), Length(max=1000) ] )
-
-    submit = SubmitField('Create')
-
-class PostChangeForm(PostCreationForm):
-    id = IntegerField( HiddenInput() ) ### THIS ADDS THE ID OF THE REFERENCING POST AS HIDDEN FIELD
     submit = SubmitField('Save')
